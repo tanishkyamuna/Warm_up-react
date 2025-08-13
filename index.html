@@ -7,10 +7,222 @@
     <title>Vite + React</title>
     <script type="module" crossorigin src="/Warm-up-react/assets/index-CmrMHJ_U.js"></script>
     <link rel="stylesheet" crossorigin href="/Warm-up-react/assets/index-uvtOqjzz.css">
+    <style>
+      /* Power button styles */
+      .power-button {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 3px solid #dc2626;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+      }
+
+      .power-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+      }
+
+      .power-button::before {
+        content: '';
+        width: 16px;
+        height: 16px;
+        border: 3px solid white;
+        border-radius: 50%;
+        border-top: 3px solid transparent;
+      }
+
+      .power-button::after {
+        content: '';
+        position: absolute;
+        width: 3px;
+        height: 12px;
+        background: white;
+        border-radius: 2px;
+        top: 14px;
+      }
+
+      /* Shutdown screen styles */
+      .shutdown-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 20000;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .shutdown-overlay.active {
+        display: flex;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .shutdown-icon {
+        width: 80px;
+        height: 80px;
+        border: 4px solid #4f46e5;
+        border-radius: 50%;
+        margin-bottom: 30px;
+        position: relative;
+        animation: pulse 2s infinite;
+      }
+
+      .shutdown-icon::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        border: 4px solid #4f46e5;
+        border-radius: 50%;
+        border-top: 4px solid transparent;
+      }
+
+      .shutdown-icon::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 4px;
+        height: 20px;
+        background: #4f46e5;
+        border-radius: 2px;
+        margin-top: -8px;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      .shutdown-text {
+        font-size: 24px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .shutdown-subtext {
+        font-size: 16px;
+        color: #9ca3af;
+        text-align: center;
+      }
+
+      .loading-dots {
+        display: inline-block;
+        animation: dots 1.5s infinite;
+      }
+
+      @keyframes dots {
+        0%, 20% { content: ''; }
+        40% { content: '.'; }
+        60% { content: '..'; }
+        80%, 100% { content: '...'; }
+      }
+
+      .restart-button {
+        margin-top: 40px;
+        padding: 12px 24px;
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+      }
+
+      .restart-button:hover {
+        background: #4338ca;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Power Button -->
+    <div class="power-button" onclick="powerOff()" title="Turn off PC"></div>
+    
+    <!-- Shutdown Overlay -->
+    <div class="shutdown-overlay" id="shutdownOverlay">
+      <div class="shutdown-icon"></div>
+      <div class="shutdown-text">Shutting down<span class="loading-dots"></span></div>
+      <div class="shutdown-subtext">Please wait while your system shuts down safely</div>
+      <button class="restart-button" onclick="restart()">Restart System</button>
+    </div>
 
+    <script>
+      function powerOff() {
+        const overlay = document.getElementById('shutdownOverlay');
+        const root = document.getElementById('root');
+        
+        // Show shutdown overlay
+        overlay.classList.add('active');
+        
+        // Hide the main app
+        root.style.display = 'none';
+        
+        // Simulate shutdown process
+        setTimeout(() => {
+          const shutdownText = overlay.querySelector('.shutdown-text');
+          shutdownText.innerHTML = 'System shut down successfully';
+          
+          const subtext = overlay.querySelector('.shutdown-subtext');
+          subtext.innerHTML = 'Your PC has been turned off safely. Click restart to turn it back on.';
+          
+          // Stop the pulsing animation
+          const icon = overlay.querySelector('.shutdown-icon');
+          icon.style.animation = 'none';
+        }, 3000);
+      }
+      
+      function restart() {
+        const overlay = document.getElementById('shutdownOverlay');
+        const root = document.getElementById('root');
+        
+        // Hide shutdown overlay
+        overlay.classList.remove('active');
+        
+        // Show the main app
+        root.style.display = 'block';
+        
+        // Reset the shutdown text for next time
+        setTimeout(() => {
+          const shutdownText = overlay.querySelector('.shutdown-text');
+          shutdownText.innerHTML = 'Shutting down<span class="loading-dots"></span>';
+          
+          const subtext = overlay.querySelector('.shutdown-subtext');
+          subtext.innerHTML = 'Please wait while your system shuts down safely';
+          
+          // Restore the pulsing animation
+          const icon = overlay.querySelector('.shutdown-icon');
+          icon.style.animation = 'pulse 2s infinite';
+        }, 500);
+      }
+    </script>
   </body>  
 </html>
 
